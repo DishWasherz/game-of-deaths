@@ -4,44 +4,15 @@ import csv
 import pandas as pd
 import math
 
-# df.set_value('C', 'x', 10)
-# utiliser ca pour ajouter les valeurs de size et de y pour chaque ligne
-# Commencer par la taille de chacun, puis ajouter ensuite le y en fonction du y d'avant
-
-# def zerolistmaker(n):
-#     listofzeros = [0] * n
-#     return listofzeros
-
-# with open('good_dataset2.csv') as f:
-#     reader = csv.reader(f)
-#     my_list = list(reader)
-
-# print len(my_list)
-# print (my_list[105][5])
-
-# count = 0
-# pile = zerolistmaker(50)
-# taille = 0
-
-# while count <50:
-#     for i in range(len(my_list)):
-#         if my_list[i][5] == str(count) :
-#             my_list[i].append(pile[count])
-#             pile[count] += 1
-#             print pile[count]
-#             taille += 1
-#             print taille
-#     count +=1
-
-# print pile
-
-data = pd.read_csv("output.csv")
+# loading the scraped dataset
+data = pd.read_csv("World.csv")
 df_2007 = data
 df_2007 = df_2007.sort_values(['Quand','Quand1'])
 slope = 2.666051223553066e-05
 hover_text = []
 bubble_size = []
 
+# appending the hover text for each character
 for index, row in df_2007.iterrows():
     hover_text.append('Victim: {Victime}<br>'.format(Victime=row['Victime']) +
                       'House: {Maison}<br>'.format(Maison=row['Maison'])+
@@ -54,7 +25,7 @@ for index, row in df_2007.iterrows():
 df_2007['text'] = hover_text
 df_2007['size'] = bubble_size
 
-
+# creating a bubble group for each season for clarity purposes
 
 trace0 = go.Scatter(
     x=1+df_2007['Quand'][df_2007['Quand1'] == ' Season 2'],
@@ -143,7 +114,7 @@ trace4 = go.Scatter(
     )
 )
 
-
+# setting the axis, labels and colors
 data = [trace0, trace1, trace2, trace3, trace4]
 layout = go.Layout(
     title='Game Of Thrones Project',
@@ -165,6 +136,7 @@ layout = go.Layout(
     ),
     paper_bgcolor='rgb(243, 243, 243)',
     plot_bgcolor='rgb(243, 243, 243)',
+    # setting hovermode to closest in order to allow easier exploration
     hovermode='closest',
 )
 

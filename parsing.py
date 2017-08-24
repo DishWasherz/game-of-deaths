@@ -8,13 +8,16 @@ import urllib
 import simplejson
 import json
 
+# creating an excel workbook
 workbook = xlwt.Workbook()
 sheet = workbook.add_sheet('Data')
 
+# exctracting the URL for each character
 def parse():
 	liste_urls=[]
-	#liste_noms=[]
+	#using the function defined in the urler script to get all pages with a list of dead characters
 	urls = urler.liens()
+	# getting the list of all the interesting elements in the page
 	for url in urls:
 		soup = BeautifulSoup(urllib2.urlopen(url))
 		soup = soup.find_all('tr')
@@ -23,15 +26,15 @@ def parse():
 		for i in range(len(soup)):
 			b=[]
 			a=BeautifulSoup(soup[i].prettify())
+			# extracting URL from the element
 			for attr,value in a.find("a").attrs.iteritems():
 				b.append(value)
 			liste_urls.append(b[0])
-			#liste_noms.append(b[1])
 	print len(liste_urls)
-	return liste_urls#,liste_noms
+	return liste_urls
 
 
-
+# function to sort and remove the characters that do not have an episode showing their death i.e. dead off-screen, and characters from the Telltale video game
 def perso_link_filter(liste_urls):
 	j=1
 	k=0
@@ -64,30 +67,27 @@ def perso_link_filter(liste_urls):
 	return liste_urls
 
 
-
+# extracting info from each dead character
 def extract(liste_urls):
 	count=1
 	data=[]
 	for url in liste_urls:
 		character = ["Name", "House", "Death", "Episode", "First", "Last", "Religion"]
 		soup=urllib2.urlopen('http://gameofthrones.wikia.com'+url)
+		# cleaning the character's name for the dataset
 		urly = url.encode('utf-8')
 		urly = urly.replace('_',' ')
 		urly = urly.replace('/wiki/' , '')
-		# urly = nom du character avec espaces
 		character[0] = urly
 		urly = urly.replace(' ','_')
-		# urly = nom du character sans espace pour le fichier image
+		# replacing blank spaces in the name to extract and store pictures easily
 		urly = "C:/Users/Alexis/Documents/Home/Projects/GoTDataviz/pics/" + urly + ".jpg"
-		# urly = adresse pour les photos
 		errors = []
-		# url = "http://gameofthrones.wikia.com/wiki/Ramsay_Bolton"
-		# soup = urllib2.urlopen(url)
 		soup=BeautifulSoup(soup)
 		soup=soup.findAll("aside",{"class":"portable-infobox pi-background pi-theme-wikia pi-layout-default"})
 		soup=BeautifulSoup(soup[0].prettify())
 		soupy =soup.findAll("div", {"class":"pi-item pi-data pi-item-spacing pi-border-color"})
-		# recup picture
+		# getting the picture
 		soupa = soup.findAll("figure" , {"class":"pi-item pi-image"})
 		if len(soupa) > 0:
 			soupa = soupa[0]
@@ -102,10 +102,11 @@ def extract(liste_urls):
 							levier = levier + 1
 					else:
 						break
+			# URL for the picture
 			urlo = urla[0]
-			#urlo = url de l'image récupérée disponible
+			# retrieving the picture
 			urllib.urlretrieve(urlo, urly)
-			#image récupérée
+		# getting the info about the character
 		for i in range(len(soupy)):
 			info=soupy[i].findAll("h3")
 			if len(info) == 0:
@@ -141,9 +142,10 @@ def extract(liste_urls):
 		print count
 		count = count + 1
 	print "errors", errors
-	f = open('output.txt','w')
-	simplejson.dump(data, f)
-	f.close()
+	# saving the results in a text file
+	# f = open('output.txt','w')
+	# simplejson.dump(data, f)
+	# f.close()
 
 
 
@@ -152,7 +154,7 @@ def main():
 	header = ["Name", "House", "Death", "Episode", "First", "Last", "Religion"]
 	for i in range(len(header)):
 		sheet.write(0, i, header[i])
-	# Now for the actual stuff
+	# Now for the actual parsing
 	parsy = parse()
 	parsy = perso_link_filter(parsy)
 	parsy = extract(parsy)
